@@ -201,7 +201,7 @@
             <div class="fortune-result" id="fortune-result"></div>
             <div class="lucky-action" id="lucky-action"></div>
             <div class="share-buttons">
-                <button class="share-button" onclick="shareResult()">📱 結果をシェア</button>
+                <button class="share-button" onclick="shareToX()">🐦 Xに投稿</button>
                 <button class="share-button" onclick="copyResult()">📋 コピー</button>
             </div>
         </div>
@@ -347,21 +347,13 @@
             }, 1500);
         }
 
-        function shareResult() {
+        function shareToX() {
             if (!currentResult) return;
             
-            const text = `🥷 Ninja おみくじ結果 🥷\n運勢: ${currentResult.fortune}\n\n🎯 今日のラッキー忍者行動:\n${currentResult.action}\n\n忍者${currentResult.ninja}が占いました！\n\n#Ninjaおみくじ #忍者占い #今日の運勢`;
+            const text = `🥷 Ninja おみくじ結果 🥷\n運勢: ${currentResult.fortune}\n\n🎯 今日のラッキー忍者行動:\n${currentResult.action}\n\n忍者${currentResult.ninja}が占いました！\n\n#Ninjaおみくじ #忍者占い #今日の運勢\n\nhttps://ninja-omikuji-mgk2uqve8-ukopoyo-gmailcoms-projects.vercel.app`;
             
-            if (navigator.share) {
-                navigator.share({
-                    title: '🥷 Ninja おみくじ結果',
-                    text: text
-                });
-            } else {
-                // フォールバック: クリップボードにコピー
-                copyToClipboard(text);
-                alert('結果をクリップボードにコピーしました！SNSでシェアしてくださいね 🥷');
-            }
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
         }
 
         function copyResult() {
