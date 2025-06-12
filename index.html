@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥷 Ninja おみくじ - 忍者の運勢占い</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .ninja-image {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            border-radius: 50%;
+            border: 3px solid #feca57;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(254, 202, 87, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .ninja-image:hover {
+            transform: scale(1.05);
+        }
+
+        .draw-button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .draw-button:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fortune-result {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .lucky-action {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(254, 202, 87, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #feca57;
+        }
+
+        .share-button {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+            border: none;
+            padding: 10px 25px;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .share-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(72, 219, 251, 0.3);
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .ninja-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        .loading {
+            display: none;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            margin-right: 10px;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🥷 Ninja おみくじ</h1>
+        <p class="subtitle">忍者の運勢占い - 今日のあなたの運勢は？</p>
+        
+        <img id="ninja-image" class="ninja-image" src="https://via.placeholder.com/150x150/333/fff?text=🥷" alt="忍者キャラクター">
+        
+        <div class="loading" id="loading">
+            <span class="spinner">🌟</span>忍者が運勢を占っています...
+        </div>
+        
+        <button class="draw-button" onclick="drawFortune()">おみくじを引く</button>
+        
+        <div class="result-card" id="result-card">
+            <div class="fortune-result" id="fortune-result"></div>
+            <div class="lucky-action" id="lucky-action"></div>
+            <div class="share-buttons">
+                <button class="share-button" onclick="shareResult()">📱 結果をシェア</button>
+                <button class="share-button" onclick="copyResult()">📋 コピー</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            🥷 忍者と一緒に今日も頑張りましょう！
+        </div>
+    </div>
+
+    <script>
+        // 忍者画像のパス配列（1-41枚）
+        const ninjaImages = [];
+        for (let i = 1; i <= 41; i++) {
+            const imageNumber = i.toString().padStart(3, '0');
+            ninjaImages.push(`images/${imageNumber}.png`);
+        }
+
+        // おみくじ結果の配列
+        const fortunes = [
+            {
+                result: '🌟超超超大吉🌟',
+                color: '#ff6b6b',
+                actions: [
+                    '今日は手裏剣を投げる真似をして運気アップ！',
+                    '屋根から屋根へ飛び移る妄想で心も軽やか！',
+                    '忍者走りで通勤・通学すると最高の一日に！',
+                    '黒い服を着て影に隠れる練習をしてみて！',
+                    'すべての移動を忍び足でこなすと幸福が訪れる！'
+                ]
+            },
+            {
+                result: '✨超大吉✨',
+                color: '#feca57',
+                actions: [
+                    '巻物に今日の目標を書いて持ち歩こう！',
+                    '忍者のポーズで写真を撮るとSNSでバズる予感！',
+                    '煙玉の代わりに小麦粉を投げて（室内で）注目を集めよう！',
+                    '分身の術の練習で運動不足も解消！',
+                    '忍者マスクをつけて買い物に行くと良いことが！'
+                ]
+            },
+            {
+                result: '🎯大吉🎯',
+                color: '#48dbfb',
+                actions: [
+                    '今日は「ニンニン」と言葉の最後につけて話そう！',
+                    '壁に張り付く練習で体幹も鍛えられる！',
+                    '忍者刀（割り箸）を腰に差して一日過ごそう！',
+                    '屋根裏を探検気分で大掃除すると運気上昇！',
+                    '黒豆を食べて忍者パワーをチャージ！'
+                ]
+            },
+            {
+                result: '🍀中吉🍀',
+                color: '#26de81',
+                actions: [
+                    '忍者歩きでペットのお散歩をしてみて！',
+                    '今日のランチは手作りおにぎりで忍者飯！',
+                    '鏡の前で忍術の練習をすると自信アップ！',
+                    '忍者の呼吸法で深呼吸を10回！',
+                    '家族に忍者の秘密を一つ教えてもらおう！'
+                ]
+            },
+            {
+                result: '🌸小吉🌸',
+                color: '#ff9ff3',
+                actions: [
+                    '忍者のように静かに家事をこなしてみて！',
+                    '今日は足音を立てずに歩く練習day！',
+                    '忍者アニメを見て勉強熱心さをアピール！',
+                    '黒い食べ物（海苔、黒ゴマなど）を食べよう！',
+                    '忍者の心得を一つ覚えて実践してみて！'
+                ]
+            },
+            {
+                result: '😐末吉😐',
+                color: '#a55eea',
+                actions: [
+                    '今日は忍者の修行だと思って苦手なことに挑戦！',
+                    '忍者のように我慢強く待つ練習をしよう！',
+                    '手裏剣投げ（紙飛行機）でストレス発散！',
+                    '忍者マンガを読んで心を落ち着けよう！',
+                    '黒い服を着て気分を引き締める！'
+                ]
+            },
+            {
+                result: '😅凶😅',
+                color: '#778ca3',
+                actions: [
+                    '今日は忍者の失敗談を調べて自分を慰めよう！',
+                    '転んでも受け身の練習だったと言い張ろう！',
+                    '忍者も人間、失敗はつきもの。明日に備えて早く寝よう！',
+                    '煙に巻かれた気分の時は、お風呂でリラックス！',
+                    '忍者の「忍」の字を100回書いて忍耐力を鍛えよう！'
+                ]
+            }
+        ];
+
+        let currentResult = null;
+
+        function drawFortune() {
+            const loadingElement = document.getElementById('loading');
+            const resultCard = document.getElementById('result-card');
+            const ninjaImage = document.getElementById('ninja-image');
+            
+            // ローディング表示
+            loadingElement.classList.add('show');
+            resultCard.classList.remove('show');
+            
+            // ランダムな忍者画像を選択
+            const randomNinjaIndex = Math.floor(Math.random() * ninjaImages.length);
+            const randomImagePath = ninjaImages[randomNinjaIndex];
+            
+            // 画像が存在しない場合はプレースホルダーを使用
+            ninjaImage.onerror = function() {
+                this.src = `https://via.placeholder.com/150x150/333/fff?text=🥷${randomNinjaIndex + 1}`;
+            };
+            ninjaImage.src = randomImagePath;
+            
+            // ランダムな運勢を選択
+            const randomFortuneIndex = Math.floor(Math.random() * fortunes.length);
+            const selectedFortune = fortunes[randomFortuneIndex];
+            const randomActionIndex = Math.floor(Math.random() * selectedFortune.actions.length);
+            
+            currentResult = {
+                fortune: selectedFortune.result,
+                action: selectedFortune.actions[randomActionIndex],
+                ninja: randomNinjaIndex + 1
+            };
+            
+            // 1.5秒後に結果を表示
+            setTimeout(() => {
+                loadingElement.classList.remove('show');
+                
+                const fortuneElement = document.getElementById('fortune-result');
+                const actionElement = document.getElementById('lucky-action');
+                
+                fortuneElement.textContent = selectedFortune.result;
+                fortuneElement.style.color = selectedFortune.color;
+                actionElement.innerHTML = `<strong>🎯 今日のラッキー忍者行動:</strong><br>${selectedFortune.actions[randomActionIndex]}`;
+                
+                resultCard.classList.add('show');
+            }, 1500);
+        }
+
+        function shareResult() {
+            if (!currentResult) return;
+            
+            const text = `🥷 Ninja おみくじ結果 🥷\n運勢: ${currentResult.fortune}\n\n🎯 今日のラッキー忍者行動:\n${currentResult.action}\n\n忍者${currentResult.ninja}が占いました！\n\n#Ninjaおみくじ #忍者占い #今日の運勢`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '🥷 Ninja おみくじ結果',
+                    text: text
+                });
+            } else {
+                // フォールバック: クリップボードにコピー
+                copyToClipboard(text);
+                alert('結果をクリップボードにコピーしました！SNSでシェアしてくださいね 🥷');
+            }
+        }
+
+        function copyResult() {
+            if (!currentResult) return;
+            
+            const text = `🥷 Ninja おみくじ結果 🥷\n運勢: ${currentResult.fortune}\n\n🎯 今日のラッキー忍者行動:\n${currentResult.action}\n\n忍者${currentResult.ninja}が占いました！`;
+            
+            copyToClipboard(text);
+            alert('結果をコピーしました！ 🥷');
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
+            } else {
+                // フォールバック
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // ページ読み込み時にランダムな忍者画像を表示
+        window.onload = function() {
+            const ninjaImage = document.getElementById('ninja-image');
+            const randomIndex = Math.floor(Math.random() * ninjaImages.length);
+            const randomImagePath = ninjaImages[randomIndex];
+            
+            ninjaImage.onerror = function() {
+                this.src = `https://via.placeholder.com/150x150/333/fff?text=🥷${randomIndex + 1}`;
+            };
+            ninjaImage.src = randomImagePath;
+        };
+    </script>
+</body>
+</html>
